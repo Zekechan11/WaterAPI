@@ -24,6 +24,8 @@ func main() {
 		log.Fatal("Failed to connect to the database:", err)
 	}
 
+	InitDB(db)
+
 	r := chi.NewRouter()
 
 	api.AuthRoutes(r, db)
