@@ -27,10 +27,11 @@ func main() {
 	r := chi.NewRouter()
 
 	api.AuthRoutes(r, db)
+	api.AdminRoutes(r, db)
+
+	fmt.Println("Server starting on http://localhost:3030")
 
 	if err := http.ListenAndServe(":3030", r); err != nil {
 		log.Fatal("Error starting server:", err)
 	}
-
-	fmt.Println("Server starting on http://localhost:3030")
 }
