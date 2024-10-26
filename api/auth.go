@@ -5,7 +5,6 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"water-api/middleware"
 	"water-api/model"
     "water-api/util"
 
@@ -17,9 +16,15 @@ import (
 func AuthRoutes(r chi.Router, db *sql.DB) {
     r.Post("/register", RegisterHandler(db))
     r.Post("/login", LoginHandler(db))
-    r.With(middleware.AuthMiddleware).Get("/protected", ProtectedHandler)
 }
 
+// Register User
+// http://localhost:3030/register
+// body:
+// {
+// 	"username": "name"
+//  "password": "password"
+// }
 func RegisterHandler(db *sql.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         var user model.User
@@ -37,11 +42,19 @@ func RegisterHandler(db *sql.DB) http.HandlerFunc {
         }
 
         w.WriteHeader(http.StatusCreated)
-        w.Write([]byte("User registered successfully"))
+        w.Header().Set("Content-Type", "application/json")
+		response := map[string]string{"message": "User registered successfully"}
+		json.NewEncoder(w).Encode(response)
     }
 }
 
-
+// Login User
+// http://localhost:3030/login
+// body:
+// {
+// 	"username": "name"
+//  "password": "password"
+// }
 func LoginHandler(db *sql.DB) http.HandlerFunc {
     return func(w http.ResponseWriter, r *http.Request) {
         var credentials model.User
@@ -72,14 +85,9 @@ func LoginHandler(db *sql.DB) http.HandlerFunc {
             return
         }
 
-        w.Write([]byte(token))
+        w.Header().Set("Content-Type", "application/json")
+		response := map[string]string{"token": token}
+		json.NewEncoder(w).Encode(response)
 
-        // w.Write([]byte("Login successful"))
     }
-}
-
-
-func ProtectedHandler(w http.ResponseWriter, r *http.Request) {
-    username := r.Context().Value("username").(string)
-    w.Write([]byte("Hello, " + username + "! This is a protected route."))
 }
